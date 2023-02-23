@@ -14,42 +14,11 @@ Component.register('api-bridge-test-button', {
     data() {
         return {
             config: {},
-            configKey: 'api2CartBridgeInstaller.config.StoreKey',
+            configKey: 'dfwconnector.config.StoreKey',
             storeKeyElem: {},
             isLoading: false,
             isSaveSuccessful: false,
         };
-    },
-
-    computed: {
-        pluginConfig() {
-            var child;
-
-            if (this.$parent.$parent.$parent.$children.length > 1) {
-                var rootElement = this.$parent.$parent.$parent.$children;
-
-            } else {
-                var rootElement = this.$parent.$parent.$parent.$children[0].$children;
-            }
-
-            rootElement.map(function(elem, key) {
-                if (typeof(elem.$children[0].$attrs.name) !== 'undefined' && elem.$children[0].$attrs.name.includes("StoreKey")) {
-                    child = elem.$children[0];
-                }
-            });
-
-            if (typeof(child.$refs.component) !== 'undefined') {
-                this.storeKeyElem = child.$refs.component;
-            } else {
-                this.storeKeyElem = child
-            }
-
-            this.configKey = this.storeKeyElem.$attrs.name;
-
-            return this.systemConfigApiService.getValues(this.configKey.replaceAll('.StoreKey', '')).then(values => {
-                this.config = values;
-            });
-        }
     },
 
     methods: {
@@ -59,22 +28,38 @@ Component.register('api-bridge-test-button', {
 
         check() {
             this.isLoading = true;
-            this.apiBridgeTest.check(this.pluginConfig).then((res) => {
-                if (res.success) {
-                    this.isSaveSuccessful = true;
-                    this.createNotificationSuccess({
-                        title: this.$tc('api-bridge-test-button.title'),
-                        message: this.$tc('api-bridge-test-button.success')
-                    });
-                } else {
-                    this.createNotificationError({
-                        title: this.$tc('api-bridge-test-button.title'),
-                        message: res.error
-                    });
-                }
+            var storeKey = '';
 
+            if (document.getElementById('dfwconnector.config.StoreKey')) {
+                storeKey = document.getElementById('dfwconnector.config.StoreKey').value;
+            }
+
+            if (storeKey !== '') {
+                this.apiBridgeTest.check(storeKey).then((res) => {
+                    if (res.success) {
+                        this.isSaveSuccessful = true;
+                        this.createNotificationSuccess({
+                            title: this.$tc('api-bridge-test-button.title'),
+                            message: this.$tc('api-bridge-test-button.success')
+                        });
+                    } else {
+                        var errorMessage = res.message ?? res.error ?? 'Check Bridge failed!';
+                        this.createNotificationError({
+                            title: this.$tc('api-bridge-test-button.title'),
+                            message: errorMessage
+                        });
+                    }
+
+                    this.isLoading = false;
+                });
+            } else {
+                this.createNotificationError({
+                    title: this.$tc('api-bridge-test-button.title'),
+                    message: 'StoreKey not defined!'
+                });
+                this.isSaveSuccessful = true;
                 this.isLoading = false;
-            });
+            }
         }
     }
 })

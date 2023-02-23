@@ -10,5 +10,15 @@
             <argument id="Symfony\Component\DependencyInjection\ContainerInterface" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+        <service id="dfwconnector\Controller\Api\ApiBridgeTestController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+        <service id="dfwconnector\Controller\BridgeController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

@@ -15,6 +15,9 @@ class ApiClient extends ApiService {
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
+            })
+            .catch((e) => {
+                return e
             });
     }
 }

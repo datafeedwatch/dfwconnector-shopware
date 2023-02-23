@@ -283,109 +283,57 @@ class M1_Config_Adapter_Shopware extends M1_Config_Adapter
    */
   public function __construct()
   {
+    require_once M1_STORE_BASE_DIR . 'vendor/autoload.php';
 
-    if (file_exists(M1_STORE_BASE_DIR  . 'engine/Shopware/Application.php')) { //shopware version < 6
-      $file = file_get_contents(M1_STORE_BASE_DIR  . 'engine/Shopware/Application.php');
-      if (preg_match('/const\s+VERSION\s*=\s*[\'"]([0-9.]+)[\'"]/', $file, $matches) && isset($matches[1])) {
-        $this->cartVars['dbVersion'] = $matches[1];
-      }
+    $shopwareVersion = $composerFile = '';
 
-      if (!$this->cartVars['dbVersion']) {
-        if (file_exists(M1_STORE_BASE_DIR  . 'engine/Shopware/Kernel.php')) {
-          $file = file_get_contents(M1_STORE_BASE_DIR  . 'engine/Shopware/Kernel.php');
-          if (preg_match('/\'version\'\s*=>\s*\'([0-9.]+)\'/', $file, $matches) && isset($matches[1])) {
-            $this->cartVars['dbVersion'] = $matches[1];
-          }
-        }
-      }
-
-      $environment = getenv('SHOPWARE_ENV') ?: getenv('REDIRECT_SHOPWARE_ENV') ?: 'production';
-      $timeZone = null;
-      if (file_exists(M1_STORE_BASE_DIR  . 'engine/Shopware/Configs/config_' . $environment . '.php')) {
-        $file  = file_get_contents(M1_STORE_BASE_DIR  . 'engine/Shopware/Configs/config_' . $environment . '.php');
-        if (preg_match('/["\']date\.timezone["\']\s?=>\s?["\'](.*)?["\']/', $file, $matches) && isset($matches[1])) {
-          $timeZone = $matches[1];
-        }
-      }
-
-      if (!$timeZone && file_exists(M1_STORE_BASE_DIR  . 'engine/Shopware/Configs/config.php')) {
-        $file  = file_get_contents(M1_STORE_BASE_DIR  . 'engine/Shopware/Configs/config.php');
-        if (preg_match('/["\']date\.timezone["\']\s?=>\s?["\'](.*)?["\']/', $file, $matches) && isset($matches[1])) {
-          $timeZone = $matches[1];
-        }
-      }
-
-      if (!$timeZone && file_exists(M1_STORE_BASE_DIR  . 'engine/Shopware/Configs/Default.php')) {
-        $file  = file_get_contents(M1_STORE_BASE_DIR  . 'engine/Shopware/Configs/Default.php');
-        if (preg_match('/["\']date\.timezone["\']\s?=>\s?["\'](.*)?["\']/', $file, $matches) && isset($matches[1])) {
-          $timeZone = $matches[1];
-        }
-      } else {
-        try {
-          $timeZone = date_default_timezone_get();
-        } catch (\Exception $e) {
-          $timeZone = 'UTC';
-        }
-      }
-
-      $configs = include_once(M1_STORE_BASE_DIR . "config.php");
-      $this->setHostPort($configs['db']['host']);
-      $this->username = $configs['db']['username'];
-      $this->password = $configs['db']['password'];
-      $this->dbname   = $configs['db']['dbname'];
-      $this->timeZone = $timeZone;
-    } else {
-      require_once M1_STORE_BASE_DIR . 'vendor/autoload.php';
-
-      $shopwareVersion = $composerFile = '';
-
-      if (class_exists('PackageVersions\Versions')) {
-        preg_match('/(?:v)?\s*((?:[0-9]+\.?)+)/', \PackageVersions\Versions::getVersion('shopware/core'), $matches);
-      } elseif ((class_exists('Composer\InstalledVersions'))) {
-        preg_match('/(?:v)?\s*((?:[0-9]+\.?)+)/', \Composer\InstalledVersions::getVersion('shopware/core'), $matches);
-      }
-
-      if (isset($matches[1])) {
-        $shopwareVersion = $matches[1];
-      } elseif (file_exists(M1_STORE_BASE_DIR . 'composer.json')) {
-        $composerFile = file_get_contents(M1_STORE_BASE_DIR . 'composer.json');
-      } elseif (file_exists(M1_STORE_BASE_DIR . '..' . DIRECTORY_SEPARATOR . 'composer.json')) {
-        $composerFile = file_get_contents(M1_STORE_BASE_DIR . '..' . DIRECTORY_SEPARATOR . 'composer.json');
-      }
-
-      if ($composerFile) {
-        $content = json_decode($composerFile, true);
-        $shopwareVersion = str_replace(['~', '^', 'v'], '', isset($content['require']['shopware/core']) ? $content['require']['shopware/core'] : '');
-      }
-
-      if (empty($shopwareVersion)) {
-        throw new \Exception('ERROR_DETECTING_PLATFORM_VERSION');
-      }
-
-      $this->cartVars['dbVersion'] = $shopwareVersion;
-      $this->timeZone = 'UTC';
-
-      $envLoader = new \Symfony\Component\Dotenv\Dotenv();
-      $config = $envLoader->parse(file_get_contents(M1_STORE_BASE_DIR . '.env'));
-
-      $params = [];
-      foreach (parse_url($config['DATABASE_URL']) as $param => $value) {////from Doctrine\DBAL\DriverManager parseDatabaseUrl function
-        if (is_string($value)) {
-          $params[$param] = rawurldecode($value);
-        } else {
-          $params[$param] = $value;
-        }
-      }
-
-      $this->cartVars['sdn_strategy'] = isset($config['SHOPWARE_CDN_STRATEGY_DEFAULT']) ? $config['SHOPWARE_CDN_STRATEGY_DEFAULT'] : 'id';
-
-      $port = isset($params['port']) ? ':' . $params['port'] : '';
-      $this->setHostPort($params['host'] . $port);
-
-      $this->dbname = ltrim($params['path'], '/');
-      $this->username = isset($params['user']) ? $params['user'] : '';
-      $this->password = isset($params['pass']) ? $params['pass'] : '';
+    if (class_exists('PackageVersions\Versions')) {
+      preg_match('/(?:v)?\s*((?:[0-9]+\.?)+)/', \PackageVersions\Versions::getVersion('shopware/core'), $matches);
+    } elseif ((class_exists('Composer\InstalledVersions'))) {
+      preg_match('/(?:v)?\s*((?:[0-9]+\.?)+)/', \Composer\InstalledVersions::getVersion('shopware/core'), $matches);
     }
+
+
+    if (isset($matches[1])) {
+      $shopwareVersion = $matches[1];
+    } elseif (file_exists(M1_STORE_BASE_DIR . 'composer.json')) {
+      $composerFile = file_get_contents(M1_STORE_BASE_DIR . 'composer.json');
+    } elseif (file_exists(M1_STORE_BASE_DIR . '..' . DIRECTORY_SEPARATOR . 'composer.json')) {
+      $composerFile = file_get_contents(M1_STORE_BASE_DIR . '..' . DIRECTORY_SEPARATOR . 'composer.json');
+    }
+
+    if ($composerFile) {
+      $content = json_decode($composerFile, true);
+      $shopwareVersion = str_replace(['~', '^', 'v'], '', isset($content['require']['shopware/core']) ? $content['require']['shopware/core'] : '');
+    }
+
+    if (empty($shopwareVersion)) {
+      throw new \Exception('ERROR_DETECTING_PLATFORM_VERSION');
+    }
+
+    $this->cartVars['dbVersion'] = $shopwareVersion;
+    $this->timeZone = 'UTC';
+
+    $envLoader = new \Symfony\Component\Dotenv\Dotenv();
+    $config = $envLoader->parse(file_get_contents(M1_STORE_BASE_DIR . '.env'));
+
+    $params = [];
+    foreach (parse_url($config['DATABASE_URL']) as $param => $value) {////from Doctrine\DBAL\DriverManager parseDatabaseUrl function
+      if (is_string($value)) {
+        $params[$param] = rawurldecode($value);
+      } else {
+        $params[$param] = $value;
+      }
+    }
+
+    $this->cartVars['sdn_strategy'] = isset($config['SHOPWARE_CDN_STRATEGY_DEFAULT']) ? $config['SHOPWARE_CDN_STRATEGY_DEFAULT'] : 'id';
+
+    $port = isset($params['port']) ? ':' . $params['port'] : '';
+    $this->setHostPort($params['host'] . $port);
+
+    $this->dbname = ltrim($params['path'], '/');
+    $this->username = isset($params['user']) ? $params['user'] : '';
+    $this->password = isset($params['pass']) ? $params['pass'] : '';
   }
 
   /**
@@ -478,12 +426,12 @@ class M1_Config_Adapter_Shopware extends M1_Config_Adapter
     $uri = str_replace('/bridge2cart', '', $uri);
 
     if ($data['method'] === 'POST') {
-      curl_setopt($ch, CURLOPT_URL, $uri . '/api/v2/' . $data['entity']);
+      curl_setopt($ch, CURLOPT_URL, $uri . '/api/' . $data['entity']);
     } elseif ($data['method'] === 'DELETE') {
-      curl_setopt($ch, CURLOPT_URL, $uri . '/api/v2/' . $data['entity']);
+      curl_setopt($ch, CURLOPT_URL, $uri . '/api/' . $data['entity']);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
     } else {
-      $url = $uri . '/api/v2/' . $data['entity'] . '/' . $data['meta']['entity_id'];
+      $url = $uri . '/api/' . $data['entity'] . '/' . $data['meta']['entity_id'];
       curl_setopt($ch, CURLOPT_URL, $url);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
     }
@@ -542,16 +490,16 @@ class M1_Config_Adapter_Shopware extends M1_Config_Adapter
 
       if ($data['method'] === 'POST') {
         $response = $client->post(
-          $uri . '/api/v2/' . $data['entity'],
+          $uri . '/api/' . $data['entity'],
           $options
         );
       } elseif ($data['method'] === 'DELETE') {
         $response = $client->delete(
-          $uri . '/api/v2/' . $data['entity']
+          $uri . '/api/' . $data['entity']
         );
       } else {
         $response = $client->put(
-          $uri . '/api/v2/' . $data['entity'] . '/' . $data['meta']['entity_id'],
+          $uri . '/api/' . $data['entity'] . '/' . $data['meta']['entity_id'],
           $options
         );
       }
@@ -584,9 +532,7 @@ class M1_Config_Adapter_Shopware extends M1_Config_Adapter
   private function _getToken($userId)
   {
     $connection = \Shopware\Core\Kernel::getConnection();
-
-    $clientRepo = new \Shopware\Core\Framework\Api\OAuth\ClientRepository($connection);
-    $client = $clientRepo->getClientEntity('administration', 'password', null, false);
+    $client = new \Shopware\Core\Framework\Api\OAuth\Client\ApiClient('administration', true);
 
     $scopeRepo = new \Shopware\Core\Framework\Api\OAuth\ScopeRepository(array(), $connection);
     $finalizedScopes = $scopeRepo->finalizeScopes(array(), 'password', $client, $userId);
@@ -598,7 +544,7 @@ class M1_Config_Adapter_Shopware extends M1_Config_Adapter
     $accessToken->setClient($client);
     $accessToken->setUserIdentifier($userId);
     $accessToken->addScope($writeScope);
-    $accessToken->setExpiryDateTime((new \DateTime())->add(new \DateInterval('PT1H')));
+    $accessToken->setExpiryDateTime((new \DateTimeImmutable())->add(new \DateInterval('PT1H')));
 
     if (file_exists(M1_STORE_BASE_DIR . 'config/jwt/private.pem')) {
       $storeRoot = M1_STORE_BASE_DIR;
@@ -609,8 +555,9 @@ class M1_Config_Adapter_Shopware extends M1_Config_Adapter
     }
 
     $key = new \League\OAuth2\Server\CryptKey($storeRoot . 'config/jwt/private.pem', 'shopware', false);
+    $accessToken->setPrivateKey($key);
 
-    return 'Bearer ' . (string)$accessToken->convertToJWT($key);
+    return 'Bearer ' . (string)$accessToken->__toString();
   }
 }
 
@@ -846,7 +793,7 @@ class M1_Bridge_Action_Savefile
       $httpResponseCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
       if ($httpResponseCode != 200) {
-        curl_close($ch);
+         curl_close($ch);
         return "[BRIDGE ERROR] Bad response received from source, HTTP code $httpResponseCode!";
       }
 

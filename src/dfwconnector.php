@@ -94,6 +94,6 @@ class dfwconnector extends Plugin
 
     $this->_initStore();
     $this->container->get(SystemConfigService::class)->set($this->getName() . '.config.StoreRoot', realpath($this->container->getParameter('kernel.project_dir')));
-    $this->container->get(SystemConfigService::class)->set($this->getName() . '.config.BridgeEndpoint', '/store-api/v3/bridge2cart/bridge-action');
+    $this->container->get(SystemConfigService::class)->set($this->getName() . '.config.BridgeEndpoint', '/store-api/bridge2cart/bridge-action');
   }
 }

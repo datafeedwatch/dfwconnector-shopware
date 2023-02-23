@@ -21,7 +21,7 @@ class BridgeController extends AbstractController
   const HTTP_NO_CONTENT = '204';
 
   /**
-   * @Route("/store-api/v{version}/bridge2cart/bridge-action", name="api.action.bridge2cart.bridge-action", methods={"GET", "POST"})
+   * @Route("/store-api/bridge2cart/bridge-action", name="api.action.bridge2cart.bridge-action", methods={"GET", "POST"})
    */
   public function BridgeApi(Request $request, Context $context)
   {

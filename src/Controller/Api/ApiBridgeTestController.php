@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use dfwconnector\Library\Store;
 
 /**
- * @RouteScope(scopes={"administration"})
+ * @RouteScope(scopes={"api"})
  */
 class ApiBridgeTestController extends AbstractController
 {
@@ -46,7 +46,7 @@ class ApiBridgeTestController extends AbstractController
   }
 
   /**
-   * @Route(path="/api/v{version}/_action/api-bridge-test/verify")
+   * @Route(path="/api/_action/api-bridge-test/verify")
    */
   public function check(RequestDataBag $dataBag, Context $context): JsonResponse
   {
@@ -133,7 +133,7 @@ class ApiBridgeTestController extends AbstractController
       $params['headers'] = ['sw-access-key' => $access_key];
 
       foreach ($salesChannelDomainCollection->getElements() as $salesChannelDomain) {
-        $uri = $salesChannelDomain->getUrl() . DIRECTORY_SEPARATOR . 'store-api/v3/bridge2cart/bridge-action';
+        $uri = $salesChannelDomain->getUrl() . DIRECTORY_SEPARATOR . 'store-api/bridge2cart/bridge-action';
         $request = $this->_request($method, $uri, $params);
 
         if ($request instanceof Response) {
@@ -148,7 +148,7 @@ class ApiBridgeTestController extends AbstractController
     //try to connect to default port
     if (!$request instanceof Response) {
       $params['headers'] = ['sw-access-key' => $access_key];
-      $uri = $sheme . '://' . $host . DIRECTORY_SEPARATOR . 'store-api/v3/bridge2cart/bridge-action';
+      $uri = $sheme . '://' . $host . DIRECTORY_SEPARATOR . 'store-api/bridge2cart/bridge-action';
       $request = $this->_request($method, $uri, $params);
     }
 
@@ -283,7 +283,7 @@ class ApiBridgeTestController extends AbstractController
   }
 
   /**
-   * @Route(path="/api/v{version}/_action/api-bridge-test/updatekey")
+   * @Route(path="/api/_action/api-bridge-test/updatekey")
    */
   public function updateStoreKey(RequestDataBag $dataBag, Context $context): JsonResponse
   {

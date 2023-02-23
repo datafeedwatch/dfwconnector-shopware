@@ -14,7 +14,7 @@ Component.register('api-update-key-button', {
     data() {
         return {
             config: {},
-            configKey: 'api2CartBridgeInstaller.config.StoreKey',
+            configKey: 'dfwconnector.config.StoreKey',
             storeKeyElem: {},
             isLoading: false,
             isSaveSuccessful: false,
@@ -23,6 +23,7 @@ Component.register('api-update-key-button', {
 
     computed: {
         pluginConfig() {
+            this.configKey = 'dfwconnector.config.StoreKey';
             var child;
 
             if (this.$parent.$parent.$parent.$children.length > 1) {
@@ -33,18 +34,16 @@ Component.register('api-update-key-button', {
             }
 
             rootElement.map(function(elem, key) {
-                if (typeof(elem.$children[0].$attrs.name) !== 'undefined' && elem.$children[0].$attrs.name.includes("StoreKey")) {
+                if (typeof(elem.$children[0]) !== 'undefined' && typeof(elem.$children[0].$attrs.name) !== 'undefined' && elem.$children[0].$attrs.name.includes("StoreKey")) {
                     child = elem.$children[0];
                 }
             });
 
-            if (typeof(child.$refs.component) !== 'undefined') {
+            if (typeof(child) !== 'undefined' && typeof(child.$refs.component) !== 'undefined') {
                 this.storeKeyElem = child.$refs.component;
             } else {
                 this.storeKeyElem = child
             }
-
-            this.configKey = this.storeKeyElem.$attrs.name;
 
             return this.systemConfigApiService.getValues(this.configKey.replaceAll('.StoreKey', '')).then(values => {
                 this.config = values;
@@ -59,6 +58,7 @@ Component.register('api-update-key-button', {
 
         updatekey() {
             this.isLoading = true;
+
             this.apiUpdateKey.check(this.pluginConfig).then((res) => {
                 if (res.success) {
                     this.isSaveSuccessful = true;
@@ -70,12 +70,18 @@ Component.register('api-update-key-button', {
                     this.$set(this.config, this.configKey, res.storekey);
                     this.systemConfigApiService.saveValues(this.config, null).then(() => {
                         this.isLoading = false;
-                        this.storeKeyElem.$emit('input', res.storekey);
+
+                        if (this.storeKeyElem) {
+                            this.storeKeyElem.$emit('input', res.storekey);
+                        } else {
+                            document.getElementById('dfwconnector.config.StoreKey').value = res.storekey;
+                        }
                     });
                 } else {
+                    var errorMessage = res.message ?? res.error ?? 'Update StoreKey failed!';
                     this.createNotificationError({
                         title: this.$tc('api-update-key-button.title'),
-                        message: res.error
+                        message: errorMessage
                     });
                 }
             });
