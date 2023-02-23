@@ -1,0 +1,39 @@
+{
+  "name": "dfwconnector/plugin-dfwconnector",
+  "description": "DataFeedWatch Connector",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+  "version": "v1.0.0",
+  "authors": [
+    {
+      "name": "DataFeedWatch by Cart.com"
+    }
+  ],
+  "require": {
+    "shopware/core": "~6.2.0 || ~6.3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "dfwconnector\\": "src/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "dfwconnector\\dfwconnector",
+    "label": {
+      "en-GB": "DataFeedWatch Connector",
+      "de-DE": "DataFeedWatch Connector"
+    },
+    "description": {
+      "en-GB": "DataFeedWatch enables merchants to optimize &amp; manage product feeds on 2,000+ channels &amp; marketplaces worldwide.",
+      "de-DE": "DataFeedWatch enables merchants to optimize &amp; manage product feeds on 2,000+ channels &amp; marketplaces worldwide."
+    },
+    "manufacturerLink": {
+      "de-DE": "https://datafeedwatch.com",
+      "en-GB": "https://datafeedwatch.com"
+    },
+    "supportLink": {
+      "de-DE": "https://datafeedwatch.com",
+      "en-GB": "https://datafeedwatch.com"
+    }
+  }
+}

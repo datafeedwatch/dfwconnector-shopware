@@ -1,0 +1,13 @@
+{
+    "api-bridge-test-button": {
+        "title": "Bridge Test",
+        "success": "Bridge was successfully tested",
+        "error": "Connection could not be established. Please check the access data"
+    },
+
+    "api-update-key-button": {
+        "title": "Update Store Key",
+        "success": "Store Key Updated",
+        "error": "Error"
+    }
+}

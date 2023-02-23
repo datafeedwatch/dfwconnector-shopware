@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Basic Configuration</title>
+        <title lang="de-DE">Grundeinstellungen</title>
+
+        <input-field>
+            <name>StoreKey</name>
+            <label>StoreKey</label>
+            <disabled>1</disabled>
+            <copyable>true</copyable>
+            <defaultValue></defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>StoreRoot</name>
+            <label>Store Root Folder</label>
+            <disabled>1</disabled>
+            <copyable>true</copyable>
+            <defaultValue></defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>BridgeEndpoint</name>
+            <label>Bridge Endpoint</label>
+            <disabled>1</disabled>
+            <copyable>true</copyable>
+            <defaultValue></defaultValue>
+        </input-field>
+
+        <component name="api-bridge-test-button">
+            <name>apiTest</name>
+            <label>Bridge Test</label>
+        </component>
+
+        <component name="api-update-key-button">
+            <name>apiUpdateKey</name>
+            <label>Update Store Key</label>
+        </component>
+    </card>
+
+
+</config>

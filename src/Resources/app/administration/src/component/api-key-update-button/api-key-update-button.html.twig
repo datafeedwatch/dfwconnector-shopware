@@ -1,0 +1,8 @@
+<div style="display: block;">
+    <sw-button-process
+        :isLoading="isLoading"
+        :processSuccess="isSaveSuccessful"
+        @process-finish="saveFinish"
+        @click="updatekey"
+    >{{ $tc("api-update-key-button.title") }}</sw-button-process>
+</div>

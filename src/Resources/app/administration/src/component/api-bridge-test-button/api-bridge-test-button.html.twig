@@ -1,0 +1,8 @@
+<div style="display: block; margin-bottom: 20px">
+    <sw-button-process
+        :isLoading="isLoading"
+        :processSuccess="isSaveSuccessful"
+        @process-finish="saveFinish"
+        @click="check"
+    >{{ $tc("api-bridge-test-button.title") }}</sw-button-process>
+</div>
