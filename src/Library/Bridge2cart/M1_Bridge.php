@@ -1192,7 +1192,11 @@ class M1_Bridge_Action_Multiquery
     $values = array();
     if (isset($this->_result[$matches[2]]['res'])) {
       foreach ($this->_result[$matches[2]]['res'] as $row) {
-        $values[] = addslashes($row[$matches[1]]);
+        if ($row[$matches[1]] === null) {
+          $values[] = $row[$matches[1]];
+        } else {
+          $values[] = addslashes($row[$matches[1]]);
+        }
       }
     }
 
